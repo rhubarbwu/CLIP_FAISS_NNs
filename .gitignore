@@ -1,3 +1,4 @@
 data
 indexes
 maps
+*/**/__pycache__
