@@ -50,7 +50,7 @@ def build_image_index(
 
     from time import time
     images_features = None
-    for i in range(len(dataset)):  # make this len(dataset)
+    for i in range(100):  # make this len(dataset) later
         img, _ = dataset[i]
         img_input = preprocess(img).unsqueeze(0).to(device)
         start_time = time()
