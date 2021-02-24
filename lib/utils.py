@@ -13,9 +13,9 @@ def get_text_map_special(raw_text, text_list_file, first_phrase=False):
             clean_text_map[c] = text_map[c]
 
     text = []
-    for text_name in clean_text_map.values():
-        text_name = text_name.replace("_", " ")
-        text.append(text_name)
+    for text_value in clean_text_map.values():
+        text_value = text_value.replace("_", " ")
+        text.append(text_value)
 
     return text, clean_text_map
 
@@ -31,9 +31,10 @@ def build_text_id_to_value_map(raw_text, dataset_name, text_list_file=None):
     text_map = json.loads(data)
 
     text = []
-    for text_name in text_map.values():
-        text_name = text_name[1].replace("_", " ")
-        text.append(text_name)
+    for text_value in text_map.values():
+        text_value = text_value[1].replace("_", " ")
+        print(text_value)
+        text.append(text_value)
 
     return text, text_map
 
