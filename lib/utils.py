@@ -1,49 +1,33 @@
-def get_text_map_special(raw_text, text_list_file, first_phrase=False):
-    text_map = dict()
-    words_txt = open("data/{}/words.txt".format(text_list_file), "r")
-    lines = words_txt.readlines()
-    for line in lines:
-        code, text_str = line.split("	")
-        text_str = text_str.strip("\n")
-        text_map[code] = text_str.split(", ")[0] if first_phrase else text_str
-
-    clean_text_map = dict()
-    for c in raw_text:
-        if c in text_map:
-            clean_text_map[c] = text_map[c]
-
-    text = []
-    for text_value in clean_text_map.values():
-        text_value = text_value.replace("_", " ")
-        text.append(text_value)
-
-    return text, clean_text_map
+import json
 
 
-def build_text_id_to_value_map(raw_text, dataset_name, text_list_file=None):
-    if text_list_file is not None:
-        return get_text_map_special(raw_text, text_list_file)
+def build_text_id_to_value_map(classes=None,
+                               text_list_file="data/imagenet_class_index.json"):
 
-    import json
     json.loads
-    with open("data/imagenet_class_index.json", "r") as myfile:
+    with open(text_list_file, "r") as myfile:
         data = myfile.read()
     text_map = json.loads(data)
 
     text = []
     for text_value in text_map.values():
         text_value = text_value[1].replace("_", " ")
-        print(text_value)
         text.append(text_value)
 
-    return text, text_map
+    text_list = [None] * len(text)
+    for text_id in text_map:
+        text_list[int(text_id)] = text_map[text_id]
+
+    if classes is not None:
+        for i in range(len(text) - 1, -1, -1):
+            if len(classes) == 0 or classes[-1] != text_list[i][0]:
+                text.pop(i)
+                text_list.pop(i)
+            elif len(classes) > 0:
+                classes.pop()
+
+    return text, text_list
 
 
 def get_text_map_filename(dataset_name):
     return "maps/{}.pickle".format(dataset_name)
-
-
-def load_dataset(dataset_name):
-    import torchvision
-    return torchvision.datasets.ImageFolder(
-        "data/{}/train".format(dataset_name))

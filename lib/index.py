@@ -1,88 +1,136 @@
-def get_image_index_filename(dataset_name, n_components, n_trees):
-    return "indexes/image_{}_{}_components_{}_trees.index".format(
-        dataset_name, n_components, n_trees)
+from annoy import AnnoyIndex
+from hparams import model_selection, n_components, n_trees, text_list_file, tiny_imagenet_200_classes
+from time import time
+
+import clip, faiss, pickle, torch, torchvision
+
+# Load the desired model.
+device = "cpu"
+model, preprocess = clip.load(model_selection, device)
 
 
-def get_text_index_filename(dataset_name, n_components, n_trees):
-    return "indexes/text_{}_{}_components_{}_trees.index".format(
-        dataset_name, n_components, n_trees)
+def get_image_index_filename(dataset_name, n_components, n_trees=None):
+    return "indexes/image_{}_{}_components{}.index".format(
+        dataset_name, n_components,
+        "" if n_trees is None else "_{}_trees".format(n_trees))
 
 
-def build_image_index(
+def get_text_index_filename(dataset_name, n_components, n_trees=None):
+    return "indexes/text_{}_{}_components{}.index".format(
+        dataset_name, n_components,
+        "" if n_trees is None else "_{}_trees".format(n_trees))
+
+
+def encode_image(dataset, i):
+    img, idx = dataset[i]
+    img_input = preprocess(img).unsqueeze(0).to(device)
+    return model.encode_image(img_input).detach().numpy()
+
+
+def build_image_index_annoy(
         dataset_name,
-        n_components,
-        n_trees,
-        text_list_file,
-        model_selection="ViT-B/32",  # RN50 or ViT-B/32
-        algorithm="annoy",  # or faiss
-        cuda=False):
-    print(
-        "Image index for {} components and {} trees, using {} does not exist. Rebuilding."
-        .format(n_components, n_trees, algorithm))
+        dataset_path,
+        n_components=n_components,
+        n_trees=n_trees,
+        text_list_file=text_list_file,
+        model_selection=model_selection,  # RN50 or ViT-B/32
+        image_limit=None,
+        verbose=False):
+
+    print("Building new image ANNOY index for {} components with {}...".format(
+        n_components, n_trees))
 
     # Load the dataset and build map.
-    import torchvision
-    from utils import load_dataset
-    dataset = load_dataset(dataset_name)
+    dataset = torchvision.datasets.ImageFolder(dataset_path)
 
-    # Load the desired model.
-    import torch
-    device = "cuda" if (cuda and torch.cuda.is_available()) else "cpu"
-    import clip
-    model, preprocess = clip.load(model_selection, device)
+    # Filename of the index to load/write to.
+    index_filename = get_image_index_filename(dataset_name, n_components,
+                                              n_trees)
 
     # Initialize and populate index.
-    from annoy import AnnoyIndex
     index = AnnoyIndex(n_components, "angular")
     index_name = get_image_index_filename(dataset_name, n_components, n_trees)
     index.on_disk_build(index_name)
 
-    def encode_image(i):
-        img, _ = dataset[i]
-        img_input = preprocess(img).unsqueeze(0).to(device)
-        return model.encode_image(img_input)
+    # Use image limit.
+    if image_limit is None:
+        image_limit = len(dataset.imgs)
 
-    from time import time
-    for i in range(len(dataset.imgs)):
+    # Add each image's encoding to the index.
+    for i in range(image_limit):
         start_time = time()
-        index.add_item(i, encode_image(i)[0])
+        index.add_item(i, encode_image(dataset, i)[0])
         print("Encoding image {} took {} seconds.".format(
             i,
             time() - start_time))
 
     index.build(n_trees)
 
+    return
 
-def build_text_index(
+
+def build_image_index_faiss(
         dataset_name,
-        n_components,
-        n_trees,
-        text_list_file,
-        model_selection="RN50",  # or ViT-B/32
-        algorithm="annoy",  # or faiss
-        cuda=False):
+        dataset_path,
+        n_components=n_components,
+        text_list_file=text_list_file,
+        model_selection=model_selection,  # RN50 or ViT-B/32
+        image_limit=None,
+        append=False,
+        verbose=False):
 
-    print(
-        "Text index for {} components and {} trees, using {} does not exist. Rebuilding."
-        .format(n_components, n_trees, algorithm))
+    if append:
+        print("Adding new images to existing FAISS index for {} components...".
+              format(n_components))
+    else:
+        print("Building new image FAISS index for {} components...".format(
+            n_components))
 
     # Load the dataset and build map.
-    import torchvision
-    from utils import load_dataset
-    dataset = load_dataset(dataset_name)
-    from utils import build_text_id_to_value_map
-    text_values, text_id_to_value_map = build_text_id_to_value_map(
-        dataset.classes, dataset_name, text_list_file)
+    dataset = torchvision.datasets.ImageFolder(dataset_path)
 
-    # Load the desired model.
-    import torch
-    device = "cuda" if (cuda and torch.cuda.is_available()) else "cpu"
-    import clip
-    model, preprocess = clip.load(model_selection, device)
+    # Filename of the index to load/write to.
+    index_filename = get_image_index_filename(dataset_name, n_components)
+
+    # Read existing index if append, or start fresh index.
+    if append:
+        index = faiss.read_index(index_filename)
+    else:
+        index = faiss.IndexFlatL2(n_components)
+
+    # Use image limit.
+    if image_limit is None:
+        image_limit = len(dataset.imgs)
+
+    # Add each image's encoding to the index.
+    for i in range(image_limit):
+        if verbose:
+            start_time = time()
+        index.add(encode_image(dataset, i))
+        if verbose:
+            print("  Encoding image {} took {} seconds.".format(
+                i,
+                time() - start_time))
+
+    # Write to index.
+    faiss.write_index(index, index_filename)
+
+
+def build_text_index_annoy(dataset_name,
+                           n_components=n_components,
+                           n_trees=n_trees,
+                           classes=None,
+                           model_selection=model_selection):
+
+    print("Building new text ANNOY index for {} components with {} trees...".
+          format(n_components, n_trees))
+
+    # Build text list and map.
+    from utils import build_text_id_to_value_map
+    text_values, text_id_to_value_map = build_text_id_to_value_map(classes)
 
     # Tokenize and encode the label texts.
-    text_inputs = torch.cat(
-        [clip.tokenize(f"a photo of a {c}") for c in text_values]).to(device)
+    text_inputs = clip.tokenize(text_values).to(device)
     with torch.no_grad():
         text_features = model.encode_text(text_inputs)
 
@@ -90,27 +138,51 @@ def build_text_index(
     c, f = text_features.shape
     from annoy import AnnoyIndex
     index = AnnoyIndex(f, "angular")
-    index_name = filename_function(dataset_name, f, n_trees)
+    index_name = get_text_index_filename(dataset_name, n_components, n_trees)
     index.on_disk_build(index_name)
     for i in range(c):
-        index.add_item(i, features[i])
-    index.build(n_trees)
+        index.add_item(i, text_features[i])
+    index.build(5)
 
-    # Serialize the text_id->textname map
-    import pickle
-    from utils import get_text_map_filename
-    serial_name = get_text_map_filename(dataset_name)
-    with open(serial_name, 'wb') as handle:
-        pickle.dump(text_id_to_value_map,
-                    handle,
-                    protocol=pickle.HIGHEST_PROTOCOL)
 
-    ## Sanity check.
-    with open(serial_name, 'rb') as handle:
-        unpickled = pickle.load(handle)
-    assert (text_id_to_value_map == unpickled)
+def build_text_index_faiss(dataset_name,
+                           n_components=n_components,
+                           classes=None,
+                           model_selection=model_selection):
+
+    print("Building new text FAISS index for {} components...".format(
+        n_components))
+
+    # Build text list and map.
+    from utils import build_text_id_to_value_map
+    text_values, text_id_to_value_map = build_text_id_to_value_map(classes)
+
+    # Tokenize and encode the label texts.
+    text_inputs = clip.tokenize(text_values).to(device)
+    with torch.no_grad():
+        text_features = model.encode_text(text_inputs)
+
+    # Filename of the index to load/write to.
+    index_filename = get_text_index_filename(dataset_name, n_components)
+
+    # Build NNs Index.
+    n, c = text_features.shape
+    index = faiss.IndexFlatL2(n_components)
+    index.add(text_features.detach().numpy())
+    faiss.write_index(index, index_filename)
 
 
 if __name__ == "__main__":
-    # build_text_index("tiny-imagenet-200", 1024, 5, None)
-    build_image_index("tiny-imagenet-200", 512, 5, None)
+    start_time = time()
+
+    build_text_index_func = build_text_index_annoy
+    build_text_index_func("tiny-imagenet-200",
+                          classes=tiny_imagenet_200_classes)
+
+    build_image_index_func = build_image_index_annoy
+    build_image_index_annoy("tiny-imagenet-200",
+                            "data/tiny-imagenet-200/train",
+                            image_limit=1000)
+    # build_image_index("imagenet", "/scratch/ssd001/datasets/imagenet256/train",
+    #                   1024, 5, None)
+    print("Indexing completed in {}.".format(time() - start_time))

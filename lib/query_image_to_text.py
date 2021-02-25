@@ -1,42 +1,83 @@
-dataset_name = "tiny-imagenet-200"
-dataset_size = 100  # TOY: 100000 for full tiny-imagenet-200
-n_components = 1024
-n_neighbours = 5
-n_samples = 100
-n_trees = 5
-assert n_samples <= dataset_size
+from annoy import AnnoyIndex
+from hparams import *
+from index import get_image_index_filename, get_text_index_filename
 
-import torchvision
-from utils import load_dataset
-dataset = load_dataset(dataset_name)
+import clip
+import faiss
+import torch
 
-import random
-indices = random.sample(range(dataset_size), n_samples)
 
-from time import time
-top_1_count, top_k_count = 0, 0
-total_time = 0.0
-for idx in range(dataset_size):
-    img, text_idx = dataset[idx]
-    text_idx = 1
+def query_image_to_text_annoy(dataset_name, n_neighbours, idx):
 
-    start_time = time()
-    from query import query_image_to_text
-    top_k = query_image_to_text(dataset_name, idx, n_components, n_neighbours,
-                                n_trees)
-    query_time = time() - start_time
-    total_time += query_time
+    # Load the image AnnoyIndex and get the encoding of the image for idx.
+    image_index_filename = get_image_index_filename(dataset_name, n_components,
+                                                    n_trees)
+    image_index = AnnoyIndex(n_components, "angular")
+    image_index.load(image_index_filename)
+    img_features = image_index.get_item_vector(idx)
 
-    if text_idx == top_k[0]:
-        top_1_count += 1
-        top_k_count += 1
-    elif text_idx in top_k:
-        top_k_count += 1
+    # Load the text AnnoyIndex.
+    text_index = AnnoyIndex(n_components, "angular")
+    text_index.load(get_text_index_filename(dataset_name, n_components,
+                                            n_trees))
 
-    print(text_idx, top_k, query_time)
+    # For the image encoding, find the nearest neighbour text encodings.
+    top_k = text_index.get_nns_by_vector(img_features, n_neighbours)
+    return top_k
 
-print(
-    "\n\t After querying {} examples in an average of {} seconds...".format(
-        n_samples,
-        total_time / n_samples), "\n\tTop 1 Accuracy:", top_1_count / n_samples,
-    "\n\tTop {} Accuracy:".format(n_neighbours), top_k_count / n_samples)
+
+def query_image_to_text_faiss(dataset_name, n_neighbours, idx):
+
+    # Load the image FAISS index and get the encoding of the image for idx.
+    image_index_filename = get_image_index_filename(dataset_name, n_components)
+    image_index = faiss.read_index(image_index_filename)
+    img_features = torch.from_numpy(image_index.reconstruct(idx)).unsqueeze(0)
+
+    # Load the text FAISS index.
+    text_index_filename = get_text_index_filename(dataset_name, n_components)
+    text_index = faiss.read_index(text_index_filename)
+
+    _, top_k = text_index.search(img_features.detach().numpy(), n_neighbours)
+
+    return top_k[0]
+
+
+if __name__ == "__main__":
+    dataset_size = 1000
+    n_samples = 1000
+    assert n_samples <= dataset_size
+
+    import torchvision
+    dataset = torchvision.datasets.ImageFolder(dataset_path)
+
+    import random
+    indices = random.sample(range(dataset_size), n_samples)
+
+    from utils import build_text_id_to_value_map
+    text, text_list = build_text_id_to_value_map()
+
+    from time import time
+    top_1_count, top_k_count = 0, 0
+    total_time = 0.0
+    for idx in range(n_samples):
+        img, text_idx = dataset[idx]
+
+        start_time = time()
+        query_image_index_func = query_image_to_text_annoy
+        top_k = query_image_index_func(dataset_name, n_neighbours, idx)
+        query_time = time() - start_time
+        total_time += query_time
+
+        if text_idx == top_k[0]:
+            top_1_count += 1
+            top_k_count += 1
+        elif text_idx in top_k:
+            top_k_count += 1
+
+        print(text_idx, top_k, query_time)
+
+    print(
+        "\n\t After querying {} examples in an average of {} seconds...".format(
+            n_samples, total_time / n_samples), "\n\tTop 1 Accuracy:",
+        top_1_count / n_samples, "\n\tTop {} Accuracy:".format(n_neighbours),
+        top_k_count / n_samples)
