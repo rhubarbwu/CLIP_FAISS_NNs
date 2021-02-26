@@ -118,7 +118,6 @@ def build_image_index_faiss(
 
 def build_text_index_annoy(dataset_name,
                            n_components=n_components,
-                           n_trees=n_trees,
                            classes=None,
                            model_selection=model_selection):
 
@@ -180,9 +179,9 @@ if __name__ == "__main__":
                           classes=tiny_imagenet_200_classes)
 
     build_image_index_func = build_image_index_annoy
-    build_image_index_annoy("tiny-imagenet-200",
-                            "data/tiny-imagenet-200/train",
-                            image_limit=1000)
+    build_image_index_func("tiny-imagenet-200",
+                           "data/tiny-imagenet-200/train",
+                           image_limit=1000)
     # build_image_index("imagenet", "/scratch/ssd001/datasets/imagenet256/train",
     #                   1024, 5, None)
     print("Indexing completed in {}.".format(time() - start_time))
