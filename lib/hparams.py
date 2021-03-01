@@ -2,7 +2,7 @@ dataset_name = "tiny-imagenet-200"
 dataset_path = "data/tiny-imagenet-200/train"
 model_selection = "RN50"
 n_components = 1024
-n_neighbours = 10
+n_neighbours = 5
 n_trees = 5
 text_list_file = "data/tiny-imagenet-200/words.txt"
 

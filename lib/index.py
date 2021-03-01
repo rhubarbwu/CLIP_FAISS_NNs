@@ -1,11 +1,11 @@
 from annoy import AnnoyIndex
-from hparams import model_selection, n_components, n_trees, text_list_file, tiny_imagenet_200_classes
+from hparams import *
 from time import time
 
 import clip, faiss, pickle, torch, torchvision
 
 # Load the desired model.
-device = "cpu"
+device = "cuda" if torch.cuda.is_available() else "cpu"
 model, preprocess = clip.load(model_selection, device)
 
 
@@ -129,7 +129,8 @@ def build_text_index_annoy(dataset_name,
     text_values, text_id_to_value_map = build_text_id_to_value_map(classes)
 
     # Tokenize and encode the label texts.
-    text_inputs = clip.tokenize(text_values).to(device)
+    text_inputs = torch.cat(
+        [clip.tokenize(f"a photo of {c}") for c in text_values]).to(device)
     with torch.no_grad():
         text_features = model.encode_text(text_inputs)
 
@@ -175,13 +176,9 @@ if __name__ == "__main__":
     start_time = time()
 
     build_text_index_func = build_text_index_annoy
-    build_text_index_func("tiny-imagenet-200",
-                          classes=tiny_imagenet_200_classes)
+    build_text_index_func("imagenet", classes=None)
 
     build_image_index_func = build_image_index_annoy
-    build_image_index_func("tiny-imagenet-200",
-                           "data/tiny-imagenet-200/train",
-                           image_limit=1000)
-    # build_image_index("imagenet", "/scratch/ssd001/datasets/imagenet256/train",
-    #                   1024, 5, None)
+    build_image_index("imagenet", "/scratch/ssd001/datasets/imagenet256/train",
+                      1000)
     print("Indexing completed in {}.".format(time() - start_time))

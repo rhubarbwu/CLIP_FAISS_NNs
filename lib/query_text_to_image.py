@@ -6,7 +6,7 @@ import torch
 import torchvision
 
 # Load the desired model. CAN BE AMORTIZED.
-device = "cpu"
+device = "cuda" if torch.cuda.is_available() else "cpu"
 model, preprocess = clip.load(model_selection, device)
 
 
