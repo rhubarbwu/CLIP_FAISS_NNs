@@ -43,8 +43,8 @@ def query_image_to_text_faiss(dataset_name, n_neighbours, idx):
 
 
 if __name__ == "__main__":
-    dataset_size = 1000
-    n_samples = 1000
+    dataset_size = 10000
+    n_samples = 10000
     assert n_samples <= dataset_size
 
     import torchvision
@@ -68,13 +68,16 @@ if __name__ == "__main__":
         query_time = time() - start_time
         total_time += query_time
 
-        if text_idx == top_k[0]:
+        top_k = [text_list[i][0] for i in top_k]
+        text_id = dataset.classes[text_idx]
+
+        if text_id == top_k[0]:
             top_1_count += 1
             top_k_count += 1
-        elif text_idx in top_k:
+        elif text_id in top_k:
             top_k_count += 1
 
-        print(text_idx, top_k, query_time)
+        print(text_id, top_k, query_time)
 
     print(
         "\n\t After querying {} examples in an average of {} seconds...".format(

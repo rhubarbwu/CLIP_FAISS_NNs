@@ -176,9 +176,8 @@ if __name__ == "__main__":
     start_time = time()
 
     build_text_index_func = build_text_index_annoy
-    build_text_index_func("imagenet", classes=None)
+    build_text_index_func(dataset_name, classes=None)
 
     build_image_index_func = build_image_index_annoy
-    build_image_index("imagenet", "/scratch/ssd001/datasets/imagenet256/train",
-                      1000)
+    build_image_index_func(dataset_name, dataset_path, image_limit=10000)
     print("Indexing completed in {}.".format(time() - start_time))
