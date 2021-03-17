@@ -1,10 +1,21 @@
-import json
+def get_image_index_filename(dataset_name, n_components, label="untitled"):
+    return "indexes/image_{}_{}_{}.index".format(dataset_name, label,
+                                                 n_components)
+
+
+def get_text_index_filename(dataset_name, n_components):
+    return "indexes/text_{}_{}.index".format(dataset_name, n_components)
+
+
+def get_text_map_filename(dataset_name):
+    return "maps/{}.pickle".format(dataset_name)
 
 
 def build_text_id_to_value_map(classes=None,
-                               text_list_file="data/imagenet_class_index.json"):
+                               text_list_file="data/imagenet_class_index.json"
+                               ):
+    import json
 
-    json.loads
     with open(text_list_file, "r") as myfile:
         data = myfile.read()
     text_map = json.loads(data)
@@ -27,7 +38,3 @@ def build_text_id_to_value_map(classes=None,
                 classes.pop()
 
     return text, text_list
-
-
-def get_text_map_filename(dataset_name):
-    return "maps/{}.pickle".format(dataset_name)

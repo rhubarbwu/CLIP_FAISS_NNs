@@ -1,4 +1,5 @@
-data
-indexes
-maps
+/data
+/indexes
+/maps
 */**/__pycache__
+.*
