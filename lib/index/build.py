@@ -30,7 +30,7 @@ def build_image_index_faiss(
     start, end = partition[0], partition[0] + partition[1]
 
     # Construct index.
-    index = faiss.IndexFlatL2(n_components)
+    index = faiss.IndexFlatIP(n_components)
 
     # Add each image's encoding to the index.
     for i in range(start, end):
