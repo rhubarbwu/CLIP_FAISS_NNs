@@ -14,9 +14,19 @@ pip install git+https://github.com/openai/CLIP.git
 
 Additionally install the following dependencies from the PyPI as needed, preferably using `pip`.
 
-- `annoy`
+- `flask` (for deployment, see below.)
 - `faiss-cpu`
 - `torchvision`
+
+## Data
+
+- Run `scripts/init.sh` to prepare the workspace.
+- Run `scripts/tiny-imagenet-200.sh` to use the default dataset (`tiny-imagenet-200`) to encode images.
+
+### Deployment
+
+- Run `scripts/api.sh` from the base of the repository to start the server (default on port `5020`).
+- You can use the examples in `frontend` to make GET/POST requests.
 
 ## Scripts
 
