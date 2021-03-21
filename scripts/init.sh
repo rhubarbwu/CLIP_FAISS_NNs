@@ -1,4 +1,4 @@
 #!/bin/sh
 
-mkdir data indexes maps
+mkdir encodings data indexes maps
 sh scripts/imagenet_classes.sh

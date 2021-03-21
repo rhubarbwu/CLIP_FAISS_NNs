@@ -1,11 +1,21 @@
-from flask import Flask, render_template, url_for, request
+from flask import Flask, request, send_file
 from io import StringIO
-from numpy import savetxt
+from numpy import save
+from uuid import uuid4
 
 from lib import data, hparams, preprocessing
 
 app = Flask("Multimodal CLIP Application Demo")
 dataset = data.load_dataset(hparams.dataset_path)
+
+
+def save_encoding_for_download(type, encoding):
+    filename = "encoding_{}_1024_".format(type) + str(uuid4())
+    save("encodings/" + filename, encoding)
+    filename += ".npy"
+    return send_file("encodings/" + filename,
+                     as_attachment=True,
+                     attachment_filename=filename)
 
 
 @app.route("/encode-image", methods=["POST", "GET"])
@@ -16,11 +26,7 @@ def encode_image():
         image_index = request.args.get("input")
 
     encoding = preprocessing.encode_image(dataset, int(image_index))
-
-    output = StringIO()
-    savetxt(output, encoding)
-
-    return render_template("encode-image.html", output=output.getvalue())
+    return save_encoding_for_download("image", encoding)
 
 
 @app.route("/encode-text", methods=["POST", "GET"])
@@ -31,8 +37,4 @@ def encode_text():
         text_input = request.args.get("input")
 
     encoding = preprocessing.encode_text([text_input])
-
-    output = StringIO()
-    savetxt(output, encoding)
-
-    return render_template("encode-text.html", output=output.getvalue())
+    return save_encoding_for_download("text", encoding)

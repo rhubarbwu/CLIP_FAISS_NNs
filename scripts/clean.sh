@@ -2,7 +2,8 @@
 
 case $1 in
 "data") rm -rf data/* ;;
-*) rm -rf indexes/*.index maps/*.pickle ;;
+"indexes") rm -rf indexes/*.index maps/*.pickle ;;
+*) rm -rf encodings/* ;;
 esac
 
 rm -rf **/__pycache__

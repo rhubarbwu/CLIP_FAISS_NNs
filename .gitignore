@@ -1,4 +1,5 @@
 /data
+/encodings
 /indexes
 /maps
 */**/__pycache__

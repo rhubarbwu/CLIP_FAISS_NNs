@@ -8,6 +8,8 @@ Install PyTorch and CLIP using the following commands.
 
 ```sh
 conda install --yes -c pytorch pytorch=1.7.1 torchvision cudatoolkit=11.0
+# or however else you can install PyTorch like if you don't have a CUDA GPU
+
 pip install ftfy regex tqdm
 pip install git+https://github.com/openai/CLIP.git
 ```
