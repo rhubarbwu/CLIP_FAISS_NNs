@@ -1,5 +1,5 @@
 from lib.data import tiny_imagenet_200_classes
-from lib.hparams import n_components
+from lib.hparams import n_components, n_classes
 from lib.index import *
 
 from faiss import read_index
@@ -9,7 +9,7 @@ from time import time
 
 def build_image_indexes():
     start_time = time()
-    partitions = tiny_imagenet_200_classes[:5]
+    partitions = tiny_imagenet_200_classes[:n_classes]
     for i in range(len(partitions)):
         build_image_index_faiss(dataset_name,
                                 dataset_path,

@@ -1,35 +1,44 @@
 # Multimodal CLIP Applications
 
-## Dependencies
+## Prequisites
 
-Make sure you have `wget`.
+- `python` 3.6+
+- `wget`
 
-Install PyTorch and CLIP using the following commands.
+### Python Dependencies
+
+Install the following dependencies from the PyPI using `conda` or `pip`.
+
+- `faiss-cpu`/`faiss-gpu`
+- `flask`
+- `ftfy`
+- `regex`
+- `torch` (preferably with CUDA)
+- `torchvision`
+- `tqdm`
+
+After installing the base PyPI dependencies, install [CLIP](https://github.com/openai/CLIP.)
 
 ```sh
-conda install --yes -c pytorch pytorch=1.7.1 torchvision cudatoolkit=11.0
-# or however else you can install PyTorch like if you don't have a CUDA GPU
-
-pip install ftfy regex tqdm
 pip install git+https://github.com/openai/CLIP.git
 ```
 
-Additionally install the following dependencies from the PyPI as needed, preferably using `pip`.
+## Usage
 
-- `flask` (for deployment, see below.)
-- `faiss-cpu`
-- `torchvision`
+Before running any programs, review `lib/hparams.py` and change any hyperparameters as necessary.
 
-## Data
+### Data
 
 - Run `scripts/init.sh` to prepare the workspace.
 - Run `scripts/tiny-imagenet-200.sh` to use the default dataset (`tiny-imagenet-200`) to encode images.
 
+### Indexing
+
+- Run `build_image_index.py` to build an image index for `n_classes` of the desired dataset.
+  - By default this is the first ten classes from `tiny-imagenet-200`.
+- The indexes will be stored in `indexes` and have a filename indicating dataset, class, and number of features (which may vary given the CLIP model and FAISS compression method used).
+
 ### Deployment
 
-- Run `scripts/api.sh` from the base of the repository to start the server (default on port `5020`).
-- You can use the examples in `frontend` to make GET/POST requests.
-
-## Scripts
-
-This project contains Shell and Python scripts (in `scripts/` and `lib/`), and they should all be invoked from the root directory of this repository. To get started, run `scripts/init.sh`.
+- Run `sh scripts/api.sh` from the base of the repository to start the server (default on port `5020`).
+- You can use the the prototypes in `frontend` to make GET/POST requests.

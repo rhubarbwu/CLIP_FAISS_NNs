@@ -3,6 +3,7 @@ dataset_name = "tiny-imagenet-200"
 dataset_path = "data/tiny-imagenet-200/train"
 # dataset_path = "/scratch/ssd001/datasets/imagenet256/train"
 model_selection = "RN50"
+n_classes = 10
 n_components = 1024
 n_neighbours = 25
 n_trees = 5

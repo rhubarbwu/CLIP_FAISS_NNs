@@ -69,4 +69,4 @@ def image_search():
     encodings = encode_text([text])
     D, I = index.search(encodings, n_neighbours)
 
-    return "Most similar classes: " + str(I[0])
+    return "Top {} similar class results: {}".format(n_neighbours, str(I[0]))
