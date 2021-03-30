@@ -2,14 +2,17 @@ from faiss import IndexIDMap, IndexFlatIP, read_index
 from flask import Flask, request, send_file
 from io import StringIO
 from numpy import arange, save
+from PIL import Image
 from uuid import uuid4
 
-from lib import data, hparams, preprocessing
-from lib.hparams import n_components, n_neighbours
+from lib.data import *
+from lib.hparams import dataset_path, n_components, n_neighbours, vocab_url
 from lib.preprocessing import encode_image, encode_text
+from lib.preprocessing.model import *
 
 app = Flask("Multimodal CLIP Application Demo")
-dataset = data.load_dataset(hparams.dataset_path)
+dataset = load_dataset(dataset_path)
+vocab = build_vocabulary(vocab_url)
 
 
 def save_encoding_for_download(type, encoding):
@@ -45,7 +48,31 @@ def encode_text_request():
 
 @app.route("/image-classification", methods=["POST", "GET"])
 def image_classification():
-    return "Unimplemented!"
+    index = IndexFlatIP(n_components)
+
+    checked_filenames = request.form.getlist("check")
+    for filename in checked_filenames:
+        curr_index = read_index("indexes_text/{}".format(filename))
+        v = curr_index.reconstruct_n(0, curr_index.ntotal)
+        if curr_index.d != n_components:
+            print(
+                "Index \"{}\" does not have the correct number of compoennts, excluding it from the index."
+                .format(filename))
+            continue
+
+        index.add(v)
+
+    image_path = request.form.get("input")
+
+    image = preprocess(Image.open(image_path)).unsqueeze(0).to(device)
+    encodings = model.encode_image(image).detach().cpu().numpy().astype(
+        'float32')
+
+    D, I = index.search(encodings, n_neighbours)
+
+    results = [vocab[i] for i in I[0]]
+
+    return "Top {} similar text results: {}".format(n_neighbours, results)
 
 
 @app.route("/image-search", methods=["POST"])
@@ -69,4 +96,4 @@ def image_search():
     encodings = encode_text([text])
     D, I = index.search(encodings, n_neighbours)
 
-    return "Top {} similar class results: {}".format(n_neighbours, str(I[0]))
+    return "Top {} similar image results: {}".format(n_neighbours, str(I[0]))

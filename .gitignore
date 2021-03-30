@@ -1,6 +1,8 @@
 /data
 /encodings
 /indexes
+/indexes_text
 /maps
-*/**/__pycache__
+
+**/__pycache__
 .*

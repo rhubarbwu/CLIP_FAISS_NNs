@@ -9,3 +9,5 @@ n_neighbours = 25
 n_trees = 5
 partition_size = 500
 text_list_file = "data/tiny-imagenet-200/words.txt"
+vocab_name = "aidemos"
+vocab_url = "http://aidemos.cs.toronto.edu/at-backend-test/resources/classification"

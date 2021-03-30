@@ -4,7 +4,7 @@ def get_image_index_filename(dataset_name, n_components, label="untitled"):
 
 
 def get_text_index_filename(dataset_name, n_components):
-    return "indexes/text_{}_{}.index".format(dataset_name, n_components)
+    return "indexes_text/text_{}_{}.index".format(dataset_name, n_components)
 
 
 def get_text_map_filename(dataset_name):

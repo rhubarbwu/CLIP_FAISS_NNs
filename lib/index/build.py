@@ -49,23 +49,25 @@ def build_text_index_faiss(dataset_name,
                            n_components=n_components,
                            classes=None,
                            model_selection=model_selection,
-                           verbose=False):
+                           verbose=False,
+                           text_values=None):
 
     if verbose:
         print("Building new text FAISS index for {} components...".format(
             n_components))
 
     # Build text list and map and encode.
-    text_values, text_id_to_value_map = build_text_id_to_value_map(classes)
-    text_features = encode_text(text_values)
+    if text_values is None:
+        text_values, text_id_to_value_map = build_text_id_to_value_map(classes)
 
-    # Filename of the index to load/write to.
+    # Set up index.
+    index = faiss.IndexFlatIP(n_components)
+
+    # Add each text_value's encoding.
+    for text_value in text_values:
+        text_features = encode_text([text_value])
+        index.add(text_features)
+
+    # Get filename and write to disk.
     index_filename = get_text_index_filename(dataset_name, n_components)
-
-    # Build NNs Index.
-    n, c = text_features.shape
-    quantizer = faiss.IndexFlatIP(c)
-    index = faiss.IndexIDMap(quantizer)
-    idx = np.arange(n)
-    index.add_with_ids(text_features, idx)
     faiss.write_index(index, index_filename)
