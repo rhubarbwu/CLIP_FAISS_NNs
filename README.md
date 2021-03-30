@@ -1,6 +1,6 @@
 # Multimodal CLIP Applications
 
-## Prequisites
+## Prerequisites
 
 - `python` 3.6+
 - `wget`
@@ -17,7 +17,7 @@ Install the following dependencies from the PyPI using `conda` or `pip`.
 - `torchvision`
 - `tqdm`
 
-After installing the base PyPI dependencies, install [CLIP](https://github.com/openai/CLIP.)
+#### Install [CLIP](https://github.com/openai/CLIP).
 
 ```sh
 pip install git+https://github.com/openai/CLIP.git
