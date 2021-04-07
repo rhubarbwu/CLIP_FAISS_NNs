@@ -1,5 +1,7 @@
 /data
 /encodings
+/frontend/image-classification.html
+/frontend/image-search.html
 /indexes
 /indexes_text
 /maps

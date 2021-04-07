@@ -19,7 +19,7 @@ def build_image_index_faiss(
         print("Building new image FAISS index for {} components...".format(
             n_components))
 
-    # Load the dataset and build map.
+    # Load the dataset.
     dataset = load_dataset(dataset_path)
 
     # Compute image partition.
@@ -56,9 +56,9 @@ def build_text_index_faiss(dataset_name,
         print("Building new text FAISS index for {} components...".format(
             n_components))
 
-    # Build text list and map and encode.
+    # Build text list and encode.
     if text_values is None:
-        text_values, text_id_to_value_map = build_text_id_to_value_map(classes)
+        text_values = build_text_list(classes)
 
     # Set up index.
     index = faiss.IndexFlatIP(n_components)
