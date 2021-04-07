@@ -7,7 +7,7 @@ from uuid import uuid4
 
 from lib.data import *
 from lib.hparams import dataset_path, n_components, n_neighbours, vocab_url
-from lib.preprocessing import encode_image, encode_text
+from lib.preprocessing import encode_image_by_path, encode_text
 from lib.preprocessing.model import *
 
 app = Flask("Multimodal CLIP Application Demo")
@@ -27,11 +27,11 @@ def save_encoding_for_download(type, encoding):
 @app.route("/encode-image", methods=["POST"])
 def encode_image_request():
     if request.method == "POST":
-        image_index = request.form["input"]
+        filepath = request.form["filepath"]
     else:
-        image_index = request.args.get("input")
+        filepath = request.args.get("filepath")
 
-    encoding = preprocessing.encode_image(dataset, int(image_index))
+    encoding = encode_image_by_path(filepath)
     return save_encoding_for_download("image", encoding)
 
 
@@ -42,7 +42,7 @@ def encode_text_request():
     else:
         text_input = request.args.get("input")
 
-    encoding = preprocessing.encode_text([text_input])
+    encoding = encode_text([text_input])
     return save_encoding_for_download("text", encoding)
 
 
