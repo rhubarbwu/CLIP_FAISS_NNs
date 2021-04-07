@@ -84,7 +84,7 @@ The indexes will be stored in `indexes` and have a filename indicating dataset, 
 
 ## Runtime Usage
 
-For the time being, open the the prototype files locally to search and classify images.
+To interface with the API, deploy a frontend like [rusbridger/Multimodal-CLIP-Applications-Frontend](https://github.com/rusbridger/Multimodal-CLIP-Applications-Frontend).
 
 ## Cleaning Up
 
