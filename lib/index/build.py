@@ -6,43 +6,33 @@ from .utils import *
 import faiss, numpy as np, pickle, torchvision
 
 
-def build_image_index_faiss(
-        dataset_name,
-        dataset_path,
-        partition=None,  # defined as (start, len)
-        label=None,
-        n_components=n_components,
-        model_selection=model_selection,
-        verbose=False):
+def build_image_index_faiss(dataset_name,
+                            dataset_path,
+                            n_images=None,
+                            n_components=n_components,
+                            model_selection=model_selection,
+                            verbose=False):
 
     if verbose:
-        print("Building new image FAISS index for {} components...".format(
-            n_components))
+        print("Building new image FAISS index for {} with {} components...".
+              format(dataset_name, n_components))
 
     # Load the dataset.
     dataset = load_dataset(dataset_path)
-
-    # Compute image partition.
-    if partition is None:
-        partition = (0, len(dataset.imgs))
-    elif type(partition) == int:
-        partition = (0, partition)
-    start, end = partition[0], partition[0] + partition[1]
 
     # Construct index.
     index = faiss.IndexFlatIP(n_components)
 
     # Add each image's encoding to the index.
-    for i in range(start, end):
+    for i in range(len(dataset) if n_images is None else n_images):
         img_features = encode_image(dataset, i).astype('float32')
         index.add(img_features)
+        if verbose:
+            print("Image {} encoded and added to index.".format(i))
 
     # Write to index.
-    index_filename = get_image_index_filename(dataset_name, n_components,
-                                              label)
+    index_filename = get_image_index_filename(dataset_name, n_components)
     faiss.write_index(index, index_filename)
-    if verbose:
-        print("Index for {} written to {}.".format(label, index_filename))
 
 
 def build_text_index_faiss(dataset_name,

@@ -38,30 +38,16 @@ Before running any scripts, review `lib/hparams.py` and change any hyperparamete
 
 ### Indexing
 
-The indexes will be stored in `indexes` and have a filename indicating dataset, class, and number of features (which may vary given the CLIP model and FAISS compression method used).
+The indexes will be stored in `indexes` and have a filename indicating dataset and number of features (which may vary given the CLIP model and FAISS compression method used).
 
 #### Generating Image Indexes
 
-1. To work with a single dataset, in `lib/hparams.py` `dataset` section, define the `dataset_name` and `dataset_path` as the label and relative path to the dataset.
-2. Then, define how the the dataset will be partitioned. The hyperparameters and their default configuration for partition are define in `lib/hparams.py` under the `partition` section.
-   - The generation of each part's index will print a progress message. The time it takes could vary depending on partition sizes used.
-3. Run `python build_image_index.py` and review the indexes in `indexes/`.
+To generate an image index, run `python build_image_index.py <dataset_name> <dataset_path> <n_components>`, where
 
-   ```
-   indexes/
-      | image_tiny-imagenet-200_n01443537_1024.index
-      | image_tiny-imagenet-200_n01629819_1024.index
-      | image_tiny-imagenet-200_n01641577_1024.index
-      | image_tiny-imagenet-200_n01644900_1024.index
-      | image_tiny-imagenet-200_n01698640_1024.index
-      | image_tiny-imagenet-200_n01742172_1024.index
-      | image_tiny-imagenet-200_n01768244_1024.index
-      | image_tiny-imagenet-200_n01770393_1024.index
-      | image_tiny-imagenet-200_n01774384_1024.index
-      | image_tiny-imagenet-200_n01774750_1024.index
-   ```
-
-4. Review the generated prototype `image-search.html` in `frontend`.
+- `dataset_name` is the name of the dataset or repository you would like to index.
+- `dataset_path` is the relative/absolute filepath to the dataset. The Dataloader will recursively include all images under this directory.
+- `n_components` is the number of components the feature vectors will contain. PCA compression is coming soon.
+- These values have default values in `lib/hparams.py`.
 
 #### Generating Text Indexes
 

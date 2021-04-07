@@ -1,10 +1,9 @@
-def get_image_index_filename(dataset_name, n_components, label="untitled"):
-    return "indexes/image_{}_{}_{}.index".format(dataset_name, label,
-                                                 n_components)
+def get_image_index_filename(dataset_name, n_components):
+    return "indexes_images/{}_{}.index".format(dataset_name, n_components)
 
 
 def get_text_index_filename(dataset_name, n_components):
-    return "indexes_text/text_{}_{}.index".format(dataset_name, n_components)
+    return "indexes_text/{}_{}.index".format(dataset_name, n_components)
 
 
 def build_text_list(classes=None,

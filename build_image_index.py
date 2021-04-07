@@ -1,46 +1,17 @@
-from lib.hparams import n_components, partition
-from lib.index import *
+from lib.hparams import dataset_name, dataset_path
+from lib.index import build_image_index_faiss
 
-from faiss import read_index
-from os import listdir
+from sys import argv
 from time import time
 
+if len(argv) >= 3:
+    dataset_name, dataset_path, n_components = argv[1], argv[2]
+if len(argv) >= 4:
+    n_components = int(argv[3])
 
-def build_image_indexes():
-    start_time = time()
-    for i in range(len(partition)):
-        build_image_index_faiss(dataset_name,
-                                dataset_path,
-                                partition=(i * partition_size, partition_size),
-                                label=partition[i],
-                                verbose=True)
-    print("Image indexing completed in {}.".format(time() - start_time))
-
-
-def build_image_index_list():
-    index_filenames = listdir("indexes/")
-    for i in range(len(index_filenames) - 1, -1, -1):
-        index = read_index("indexes/" + index_filenames[i])
-        if index.d != n_components:
-            index_filenames.pop(i)
-
-    with open("frontend/image-search-base.html") as f:
-        lines = f.readlines()
-    f.close()
-
-    for i in range(len(lines)):
-        if "<legend>" in lines[i]:
-            for filename in index_filenames:
-                new_line = "<input type=\"checkbox\" name=\"check\" value=\"{}\">{}<br>\n".format(
-                    filename, filename)
-                lines.insert(i + 1, new_line)
-                i += 1
-            break
-
-    with open("frontend/image-search.html", "w") as f:
-        f.writelines(lines)
-    f.close()
-
-
-build_image_indexes()
-build_image_index_list()
+start_time = time()
+build_image_index_faiss(dataset_name,
+                        dataset_path,
+                        n_components=n_components,
+                        verbose=True)
+print("Image indexing completed in {}.".format(time() - start_time))

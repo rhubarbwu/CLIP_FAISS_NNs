@@ -19,30 +19,4 @@ def build_text_indexes():
         time() - start_time))
 
 
-def build_text_index_list():
-    index_filenames = listdir("indexes_text/")
-    for i in range(len(index_filenames) - 1, -1, -1):
-        index = read_index("indexes_text/" + index_filenames[i])
-        if index.d != n_components:
-            index_filenames.pop(i)
-
-    with open("frontend/image-classification-base.html") as f:
-        lines = f.readlines()
-    f.close()
-
-    for i in range(len(lines)):
-        if "<legend>" in lines[i]:
-            for filename in index_filenames:
-                new_line = "<input type=\"checkbox\" name=\"check\" value=\"{}\">{}<br>\n".format(
-                    filename, filename)
-                lines.insert(i + 1, new_line)
-                i += 1
-            break
-
-    with open("frontend/image-classification.html", "w") as f:
-        f.writelines(lines)
-    f.close()
-
-
 build_text_indexes()
-build_text_index_list()
