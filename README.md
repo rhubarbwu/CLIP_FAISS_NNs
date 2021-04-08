@@ -34,17 +34,17 @@ Before running any scripts, review `lib/hparams.py` and change any hyperparamete
 
 - Run `scripts/init.sh` to prepare the workspace. This creates folders for data, and generated indexes and encodings.
 - If you want to use the default dataset (`tiny-imagenet-200`), run `scripts/tiny-imagenet-200.sh`.
-- Make sure that any datasets (AKA repositories) you want to use are accessible with a relative/absolute Unix path from the base of the repository).
+- Make sure that any datasets (AKA repositories) you want to use are accessible with a relative/absolute Unix path from the base of the dataset/repository).
 
 ### Indexing
 
-The indexes will be stored in `indexes` and have a filename indicating dataset and number of features (which may vary given the CLIP model and FAISS compression method used).
+The indexes will be stored in `indexes` and have a filename indicating dataset and number of features (which may vary given the CLIP model and FAISS compression method used). After each dataset generates an index, its (`dataset_name`, `dataset_path`) are added to `collection.txt` if they weren't already there. This provides an easy reference to reconstruct an ordered compound index and dataloader.
 
 #### Generating Image Indexes
 
 To generate an image index, run `python build_image_index.py <dataset_name> <dataset_path> <n_components>`, where
 
-- `dataset_name` is the name of the dataset or repository you would like to index.
+- `dataset_name` is the name of the dataset/repository you would like to index.
 - `dataset_path` is the relative/absolute filepath to the dataset. The Dataloader will recursively include all images under this directory.
 - `n_components` is the number of components the feature vectors will contain. PCA compression is coming soon.
 - These values have default values in `lib/hparams.py`.
@@ -61,8 +61,6 @@ To generate an image index, run `python build_image_index.py <dataset_name> <dat
       | text_aidemos_512.index
       | text_aidemos_1024.index
    ```
-
-3. Review the generated prototype `image-classification.html` in `frontend`.
 
 ## Deployment
 

@@ -1,8 +1,12 @@
-# dataset, default tiny-imagenet-200
-from .data import tiny_imagenet_200_classes
-
-dataset_name = "tiny-imagenet-200-val"
-dataset_path = "../data/tiny-imagenet-200/val"
+# collection of datasets/repositories available
+with open("collection.txt") as f:
+    lines = f.readlines()
+    f.close()
+collection = []
+for line in lines:
+    split = line.split()
+    if len(split) == 2:
+        collection.append((split[0], split[1]))
 
 # CLIP/FAISS parameters
 # model_selection, n_components = "RN50", 1024  # model that CLIP should use
