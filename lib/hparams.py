@@ -1,4 +1,5 @@
 # collection of datasets/repositories available
+open("collection.txt", 'a').close()
 with open("collection.txt") as f:
     lines = f.readlines()
     f.close()

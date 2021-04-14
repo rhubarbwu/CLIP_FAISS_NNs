@@ -5,6 +5,7 @@
 /indexes_images
 /indexes_text
 /maps
+collection.txt
 
 **/__pycache__
 .*
