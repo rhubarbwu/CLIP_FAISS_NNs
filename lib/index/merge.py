@@ -1,20 +1,19 @@
+from lib.data import load_dataset
 from lib.hparams import n_components, collection
 
 from faiss import read_index
 from os.path import exists
 
 
-def build_image_index_list():
+def build_image_dataset_list():
+    datasets = dict()
 
-    repo_names = []
     for repo in collection:
-        repo_name = repo[0]
+        repo_name, repo_path = repo[0], repo[1]
         index_filename = "indexes_images/{}_{}.index".format(
             repo_name, n_components)
 
-        repo_path = repo[1]
-
         if exists(index_filename) and exists(repo_path):
-            repo_names.append(repo_name)
+            datasets[repo_name] = load_dataset(repo_path)
 
-    return repo_names
+    return datasets
