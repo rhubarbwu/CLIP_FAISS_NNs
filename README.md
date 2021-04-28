@@ -10,11 +10,8 @@ To run this application you'll need `wget`, Python 3.6+, and the following Pytho
 
 - `faiss-cpu`/`faiss-gpu`
 - `flask`
-- `ftfy`
-- `regex`
-- `torch` (preferably with CUDA)
-- `torchvision`
-- `tqdm`
+- `flask-cors`
+- `torch`, `torchvision` [(with CUDA preferably)](https://pytorch.org/get-started/locally/)
 
 A GPU is also preferred.
 
@@ -23,6 +20,12 @@ A GPU is also preferred.
 ```sh
 pip install git+https://github.com/openai/CLIP.git
 ```
+
+This will also install the following dependencies.
+
+- `ftfy`
+- `regex`
+- `tqdm`
 
 ## Setup
 
@@ -49,6 +52,16 @@ To generate an image index, run `python build_image_index.py <dataset_name> <dat
 - `n_components` is the number of components the feature vectors will contain. PCA compression is coming soon.
 - These values have default values in `lib/hparams.py`.
 
+  ```
+  indexes_images/
+     | tiny-imagenet-200-train_1024.index
+     | tiny-imagenet-200-train_512.index
+     | tiny-imagenet-200-test_1024.index
+     | tiny-imagenet-200-test_512.index
+     | tiny-imagenet-200-val_1024.index
+     | tiny-imagenet-200-val_512.index
+  ```
+
 #### Generating Text Indexes
 
 1. Review the hyperparameters in the `vocabulary` section of `lib/hparams.py`. Give the vocabulary a name and define the URL from which it can be retrieved.
@@ -58,8 +71,8 @@ To generate an image index, run `python build_image_index.py <dataset_name> <dat
 
    ```
    indexes_text/
-      | text_aidemos_512.index
       | text_aidemos_1024.index
+      | text_aidemos_512.index
    ```
 
 ## Deployment
