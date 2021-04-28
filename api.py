@@ -3,7 +3,7 @@ from flask_cors import CORS
 from random import sample
 
 from lib.data import *
-from lib.index.query import classify_img, search_txt
+from lib.index.query import classify_img, search_sim, search_txt
 
 app = Flask("Multimodal CLIP Application Demo")
 CORS(app)
@@ -41,15 +41,21 @@ def query():
     query = data["query"]
     nnn = data["n_neighbours"]
 
+    subsets, _ = build_img_data_subset(datasets, repos)
+
     classified, filepaths = [], []
     if mode == "#classify":
         classified = classify_img(repos, ["aidemos"], index, nnn)
-    elif mode == "#search":
-        subsets, _ = build_img_data_subset(datasets, repos)
-        subset_indices = search_txt(repos, query, nnn)
+    elif mode == "#similar":
+        result_indices = search_sim(repos, index, nnn)
         filepaths = [(int(i), index_into_subsets(subsets, i))
-                     for i in subset_indices]
+                     for i in result_indices]
+
+    elif mode == "#search":
+        result_indices = search_txt(repos, query, nnn)
+        filepaths = [(int(i), index_into_subsets(subsets, i))
+                     for i in result_indices][1:]
     else:
-        print("Not implemented!")
+        print("Mode {} not implemented!".format(mode))
 
     return jsonify({"classified": classified, "filepaths": filepaths})

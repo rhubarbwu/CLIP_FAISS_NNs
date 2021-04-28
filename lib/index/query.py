@@ -26,11 +26,10 @@ def merge_index(repos, n_components, directory):
 
 
 def classify_img(img_repos, txt_repos, i, nnn):
-
     img_index = merge_index(img_repos, n_components, "indexes_images")
     img_encoding = array([img_index.reconstruct(i)])
 
-    txt_index = merge_index(txt_repos, n_components, "indexes_txt")
+    txt_index = merge_index(txt_repos, n_components, "indexes_text")
     D, I = txt_index.search(img_encoding, nnn)
     results = [vocab[i] for i in I[0]]
 
@@ -40,8 +39,7 @@ def classify_img(img_repos, txt_repos, i, nnn):
 def search_sim(img_repos, i, nnn):
     img_index = merge_index(img_repos, n_components, "indexes_images")
     img_encoding = array([img_index.reconstruct(i)])
-
-    D, I = img_index.search(txt_encoding, nnn + 1)
+    D, I = img_index.search(img_encoding, nnn + 1)
 
     return I[0][1:]
 
