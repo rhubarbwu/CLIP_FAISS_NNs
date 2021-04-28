@@ -3,7 +3,8 @@ from numpy import array
 
 from lib.data.vocabulary import build_vocabulary
 from lib.hparams import n_components, vocab_url
-# from lib.preprocessing.model import *
+from lib.preprocessing import encode_img, encode_txt
+from lib.preprocessing.model import *
 
 vocab = build_vocabulary(vocab_url)
 
@@ -24,21 +25,30 @@ def merge_index(repos, n_components, directory):
     return index
 
 
-def classify_image(img_repos, text_repos, i, nnn):
+def classify_img(img_repos, txt_repos, i, nnn):
 
     img_index = merge_index(img_repos, n_components, "indexes_images")
     img_encoding = array([img_index.reconstruct(i)])
 
-    text_index = merge_index(text_repos, n_components, "indexes_text")
-    D, I = text_index.search(img_encoding, nnn)
+    txt_index = merge_index(txt_repos, n_components, "indexes_txt")
+    D, I = txt_index.search(img_encoding, nnn)
     results = [vocab[i] for i in I[0]]
 
     return results
 
 
-def search_image(img_repos, i, nnn):
-    return results
+def search_sim(img_repos, i, nnn):
+    img_index = merge_index(img_repos, n_components, "indexes_images")
+    img_encoding = array([img_index.reconstruct(i)])
+
+    D, I = img_index.search(txt_encoding, nnn + 1)
+
+    return I[0][1:]
 
 
-def search_text(img_repos, i, nnn):
-    return results
+def search_txt(img_repos, txt_query, nnn):
+    img_index = merge_index(img_repos, n_components, "indexes_images")
+    txt_encoding = encode_txt([txt_query])
+    D, I = img_index.search(txt_encoding, nnn)
+
+    return I[0]

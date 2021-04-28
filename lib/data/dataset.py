@@ -9,7 +9,7 @@ def load_dataset(dataset_path):
     return torchvision.datasets.ImageFolder(dataset_path)
 
 
-def build_image_dataset_map():
+def build_img_dataset_map():
     datasets = dict()
     count = 0
 
@@ -26,7 +26,7 @@ def build_image_dataset_map():
     return datasets
 
 
-def build_image_data_subset(datasets, repos):
+def build_img_data_subset(datasets, repos):
     subsets = []
     subset_size = 0
     for r in repos:

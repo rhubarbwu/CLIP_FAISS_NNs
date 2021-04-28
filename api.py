@@ -3,13 +3,13 @@ from flask_cors import CORS
 from random import sample
 
 from lib.data import *
-from lib.index.query import classify_image
+from lib.index.query import classify_img, search_txt
 
 app = Flask("Multimodal CLIP Application Demo")
 CORS(app)
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
 
-datasets = build_image_dataset_map()
+datasets = build_img_dataset_map()
 subset_preview_length = 6
 
 
@@ -19,15 +19,15 @@ def get_repos():
 
 
 @app.route("/pre_imgs", methods=["POST"])
-def get_images():
+def get_imgs():
     data = request.json
     mode = data["mode"]["id"]
     repos = data["repos"]
 
-    subsets, subset_size = build_image_data_subset(datasets, repos)
-
+    subsets, subset_size = build_img_data_subset(datasets, repos)
     subset_indices = sample(range(subset_size), subset_preview_length)
-    filepaths = [(i, index_into_subsets(subsets, i)) for i in subset_indices]
+    filepaths = [(int(i), index_into_subsets(subsets, i))
+                 for i in subset_indices]
 
     return jsonify({"filepaths": filepaths})
 
@@ -38,11 +38,17 @@ def query():
     mode = data["mode"]["id"]
     repos = data["repos"]
     index = data["index"]
+    query = data["query"]
     nnn = data["n_neighbours"]
 
     classified, filepaths = [], []
     if mode == "#classify":
-        classified = classify_image(repos, ["aidemos"], index, nnn)
+        classified = classify_img(repos, ["aidemos"], index, nnn)
+    elif mode == "#search":
+        subsets, _ = build_img_data_subset(datasets, repos)
+        subset_indices = search_txt(repos, query, nnn)
+        filepaths = [(int(i), index_into_subsets(subsets, i))
+                     for i in subset_indices]
     else:
         print("Not implemented!")
 
