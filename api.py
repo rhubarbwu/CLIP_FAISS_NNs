@@ -32,30 +32,42 @@ def get_imgs():
     return jsonify({"filepaths": filepaths})
 
 
-@app.route("/query", methods=["POST"])
-def query():
+@app.route("/classify", methods=["POST"])
+def classify():
     data = request.json
-    mode = data["mode"]["id"]
     repos = data["repos"]
     index = data["index"]
-    query = data["query"]
+    nnn = data["n_neighbours"]
+    classified = classify_img(repos, ["aidemos"], index, nnn)
+
+    return jsonify({"classified": classified})
+
+
+@app.route("/search", methods=["POST"])
+def search():
+    data = request.json
+    repos = data["repos"]
+    query = "a picture of {}".format(data["query"])
     nnn = data["n_neighbours"]
 
     subsets, _ = build_img_data_subset(datasets, repos)
+    result_indices = search_txt(repos, query, nnn)
+    filepaths = [(int(i), index_into_subsets(subsets, i))
+                 for i in result_indices]
 
-    classified, filepaths = [], []
-    if mode == "#classify":
-        classified = classify_img(repos, ["aidemos"], index, nnn)
-    elif mode == "#similar":
-        result_indices = search_sim(repos, index, nnn)
-        filepaths = [(int(i), index_into_subsets(subsets, i))
-                     for i in result_indices]
+    return jsonify({"filepaths": filepaths})
 
-    elif mode == "#search":
-        result_indices = search_txt(repos, query, nnn)
-        filepaths = [(int(i), index_into_subsets(subsets, i))
-                     for i in result_indices][1:]
-    else:
-        print("Mode {} not implemented!".format(mode))
 
-    return jsonify({"classified": classified, "filepaths": filepaths})
+@app.route("/similar", methods=["POST"])
+def similar():
+    data = request.json
+    repos = data["repos"]
+    index = data["index"]
+    nnn = data["n_neighbours"]
+
+    subsets, _ = build_img_data_subset(datasets, repos)
+    result_indices = search_sim(repos, index, nnn)
+    filepaths = [(int(i), index_into_subsets(subsets, i))
+                 for i in result_indices]
+
+    return jsonify({"filepaths": filepaths})

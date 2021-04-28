@@ -35,29 +35,25 @@ def build_image_index_faiss(dataset_name,
     faiss.write_index(index, index_filename)
 
 
-def build_text_index_faiss(dataset_name,
-                           n_components=n_components,
-                           classes=None,
-                           model_selection=model_selection,
-                           verbose=False,
-                           text_values=None):
+def build_txt_index_faiss(dataset_name,
+                          text_values,
+                          n_components=n_components,
+                          classes=None,
+                          model_selection=model_selection,
+                          verbose=False):
 
     if verbose:
         print("Building new text FAISS index for {} components...".format(
             n_components))
-
-    # Build text list and encode.
-    if text_values is None:
-        text_values = build_text_list(classes)
 
     # Set up index.
     index = faiss.IndexFlatIP(n_components)
 
     # Add each text_value's encoding.
     for text_value in text_values:
-        text_features = encode_text([text_value])
+        text_features = encode_txt([text_value])
         index.add(text_features)
 
     # Get filename and write to disk.
-    index_filename = get_text_index_filename(dataset_name, n_components)
+    index_filename = get_txt_index_filename(dataset_name, n_components)
     faiss.write_index(index, index_filename)

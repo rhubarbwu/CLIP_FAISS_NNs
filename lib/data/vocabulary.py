@@ -9,7 +9,7 @@ def build_vocabulary(url):
 
     def unpack_keys(data, main=None):
         for (key, value) in data.items():
-            keys.add(key.replace(" ", "_"))
+            keys.add("a picture of {}".format(key))
             unpack_keys(value, main=key)
 
     unpack_keys(data)
