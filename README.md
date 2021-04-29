@@ -9,23 +9,27 @@ Prototype for multimodal image/text applications using [OpenAI's CLIP preprocess
 To run this application you'll need `wget`, Python 3.6+, and the following Python dependencies, installed from the PyPI using `conda` or `pip` (as appropriate).
 
 - `faiss-cpu`/`faiss-gpu`
-- `flask`
-- `flask-cors`
+- `flask`+`flask-cors` (for deployment)
+- `ftfy`
+- `regex`
 - `torch`, `torchvision` [(with CUDA preferably)](https://pytorch.org/get-started/locally/)
+- `tqdm`
 
 A GPU is also preferred.
 
 ### [CLIP](https://github.com/openai/CLIP)
 
+You can install it globally.
+
 ```sh
 pip install git+https://github.com/openai/CLIP.git
 ```
 
-This will also install the following dependencies.
+Or install it locally from submodule.
 
-- `ftfy`
-- `regex`
-- `tqdm`
+```sh
+git submodule update --init
+```
 
 ## Setup
 
@@ -79,13 +83,24 @@ indexes_images/
       | text_aidemos_512.index
    ```
 
-## Deployment
+## Usage
+
+Using a CUDA-capable GPU is preferred, so make sure to specify the GPU device `X` if applicable.
+
+```sh
+CUDA_VISIBLE_DEVICES=X
+```
+
+If you installed [CLIP](https://github.com/openai/CLIP) locally, set `LOCAL_CLIP` when running a script or API that requires it.
+
+```sh
+LOCAL_CLIP= <rest of the script>
+```
+
+### Deployment
 
 - Run `sh scripts/api.sh` from the base of the repository to start the server (default on port `5020`).
-
-## Runtime Usage
-
-To interface with the API, deploy a frontend like [rusbridger/Multimodal-CLIP-Applications-Frontend](https://github.com/rusbridger/Multimodal-CLIP-Applications-Frontend).
+- To interface with the API, deploy a frontend like [rusbridger/Multimodal-CLIP-Applications-Frontend](https://github.com/rusbridger/Multimodal-CLIP-Applications-Frontend).
 
 ## Cleaning Up
 
