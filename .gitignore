@@ -1,11 +1,13 @@
-/data
+/data/*
+/vocab/*
 /encodings
 /frontend/image-classification.html
 /frontend/image-search.html
 /indexes_images
 /indexes_text
 /maps
-collection.txt
+collection*.txt
 
 **/__pycache__
 .*
+!*.gitkeep

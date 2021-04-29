@@ -1,3 +1,3 @@
 #!/bin/sh
 
-mkdir -p ../data indexes_images indexes_text
+mkdir -p data vocab indexes_images indexes_text

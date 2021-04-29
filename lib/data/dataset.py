@@ -1,29 +1,58 @@
-from lib.hparams import collection, n_components
+from lib.hparams import collection_images, collection_text, n_components
 
 from faiss import read_index
+from json import load
+from os import listdir
 from os.path import exists
 import torchvision
 
 
-def load_dataset(dataset_path):
+def load_images(dataset_path):
     return torchvision.datasets.ImageFolder(dataset_path)
 
 
-def build_img_dataset_map():
-    datasets = dict()
-    count = 0
+def load_text(dataset_path):
+    with open(dataset_path) as fp:
+        data = load(fp)
 
-    for repo in sorted(collection):
+    keys = set()
+
+    def unpack_keys(data, main=None):
+        for (key, value) in data.items():
+            keys.add("a picture of {}".format(key))
+            unpack_keys(value, main=key)
+
+    unpack_keys(data)
+    return sorted(keys)
+
+
+def build_img_repo_map():
+    repos = dict()
+
+    for repo in sorted(collection_images):
         repo_name, repo_path = repo[0], repo[1]
-        index_filename = "indexes_images/{}_{}.index".format(
+        index_path = "indexes_images/{}_{}.index".format(
             repo_name, n_components)
 
-        if exists(index_filename) and exists(repo_path):
-            dataset = load_dataset(repo_path)
-            datasets[repo_name] = load_dataset(repo_path)
-            count += len(dataset)
+        if exists(index_path) and exists(repo_path):
+            dataset = load_images(repo_path)
+            repos[repo_name] = dataset
 
-    return datasets
+    return repos
+
+
+def build_txt_repo_map():
+    repos = dict()
+
+    for repo in sorted(collection_text):
+        repo_name, repo_path = repo[0], repo[1]
+        index_path = "indexes_text/{}_{}.index".format(repo_name, n_components)
+
+        if exists(index_path) and exists(repo_path):
+            dataset = load_text(repo_path)
+            repos[repo_name] = dataset
+
+    return repos
 
 
 def build_img_data_subset(datasets, repos):

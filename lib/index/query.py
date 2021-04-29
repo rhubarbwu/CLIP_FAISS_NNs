@@ -1,12 +1,9 @@
 from faiss import IndexIDMap, IndexFlatIP, read_index
 from numpy import array
 
-from lib.data.vocabulary import build_vocabulary
-from lib.hparams import n_components, vocab_url
+from lib.hparams import n_components
 from lib.preprocessing import encode_img, encode_txt
 from lib.preprocessing.model import *
-
-vocab = build_vocabulary(vocab_url)
 
 
 def merge_index(repos, n_components, directory):
@@ -31,7 +28,7 @@ def classify_img(img_repos, txt_repos, i, nnn):
 
     txt_index = merge_index(txt_repos, n_components, "indexes_text")
     D, I = txt_index.search(img_encoding, nnn)
-    results = [vocab[i] for i in I[0]]
+    results = I[0]
 
     return results
 

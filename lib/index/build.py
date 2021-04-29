@@ -6,12 +6,12 @@ from .utils import *
 import faiss, numpy as np, pickle, torchvision
 
 
-def build_image_index_faiss(dataset_name,
-                            dataset_path,
-                            n_images=None,
-                            n_components=n_components,
-                            model_selection=model_selection,
-                            verbose=False):
+def build_img_index_faiss(dataset_name,
+                          dataset_path,
+                          n_images=None,
+                          n_components=n_components,
+                          model_selection=model_selection,
+                          verbose=False):
 
     if verbose:
         print("Building new image FAISS index for {} with {} components...".

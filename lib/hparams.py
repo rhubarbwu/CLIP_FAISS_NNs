@@ -1,13 +1,24 @@
-# collection of datasets/repositories available
-open("collection.txt", 'a').close()
-with open("collection.txt") as f:
+# collection of image datasets/repositories available
+open("collection_images.txt", 'a').close()
+with open("collection_images.txt") as f:
     lines = f.readlines()
     f.close()
-collection = []
+collection_images = []
 for line in lines:
     split = line.split()
     if len(split) == 2:
-        collection.append((split[0], split[1]))
+        collection_images.append((split[0], split[1]))
+
+# collection of text datasets/repositories available
+open("collection_text.txt", 'a').close()
+with open("collection_text.txt") as f:
+    lines = f.readlines()
+    f.close()
+collection_text = []
+for line in lines:
+    split = line.split()
+    if len(split) == 2:
+        collection_text.append((split[0], split[1]))
 
 # CLIP/FAISS parameters
 # model_selection, n_components = "RN50", 1024  # model that CLIP should use

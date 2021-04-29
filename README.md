@@ -41,7 +41,7 @@ Before running any scripts, review `lib/hparams.py` and change any hyperparamete
 
 ### Indexing
 
-The indexes will be stored in `indexes` and have a filename indicating dataset and number of features (which may vary given the CLIP model and FAISS compression method used). After each dataset generates an index, its (`dataset_name`, `dataset_path`) are added to `collection.txt` if they weren't already there. This provides an easy reference to reconstruct an ordered compound index and dataloader.
+The indexes will be stored in `indexes` and have a filename indicating dataset and number of features (which may vary given the CLIP model and FAISS compression method used).
 
 #### Generating Image Indexes
 
@@ -52,15 +52,19 @@ To generate an image index, run `python build_image_index.py <dataset_name> <dat
 - `n_components` is the number of components the feature vectors will contain. PCA compression is coming soon.
 - These values have default values in `lib/hparams.py`.
 
-  ```
-  indexes_images/
-     | tiny-imagenet-200-train_1024.index
-     | tiny-imagenet-200-train_512.index
-     | tiny-imagenet-200-test_1024.index
-     | tiny-imagenet-200-test_512.index
-     | tiny-imagenet-200-val_1024.index
-     | tiny-imagenet-200-val_512.index
-  ```
+After each dataset generates an index, its (`dataset_name`, `dataset_path`) are added to `collection_<datatype>.txt` if they weren't already there. This provides an easy reference to reconstruct an ordered compound index and dataloader.
+
+The file tree should look something like this:
+
+```
+indexes_images/
+   | tiny-imagenet-200-train_1024.index
+   | tiny-imagenet-200-train_512.index
+   | tiny-imagenet-200-test_1024.index
+   | tiny-imagenet-200-test_512.index
+   | tiny-imagenet-200-val_1024.index
+   | tiny-imagenet-200-val_512.index
+```
 
 #### Generating Text Indexes
 
