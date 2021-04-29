@@ -11,14 +11,11 @@ def load_images(dataset_path):
     return torchvision.datasets.ImageFolder(dataset_path)
 
 
-def load_text(dataset_path):
-    with open(dataset_path) as fp:
-        data = load(fp)
-
+def load_text(data):
     keys = set()
 
-    def unpack_keys(data, main=None):
-        for (key, value) in data.items():
+    def unpack_keys(curr_data, main=None):
+        for (key, value) in curr_data.items():
             keys.add("a picture of {}".format(key))
             unpack_keys(value, main=key)
 
@@ -49,7 +46,9 @@ def build_txt_repo_map():
         index_path = "indexes_text/{}_{}.index".format(repo_name, n_components)
 
         if exists(index_path) and exists(repo_path):
-            dataset = load_text(repo_path)
+            with open(repo_path) as fp:
+                data = load(fp)
+            dataset = load_text(data)
             repos[repo_name] = dataset
 
     return repos

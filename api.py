@@ -1,8 +1,12 @@
 from flask import Flask, jsonify, request, send_file
 from flask_cors import CORS
+from json import dump
+from os import environ
 from random import sample
 
 from lib.data import *
+from lib.index.build import build_txt_index_faiss
+from lib.index.collection import update_collection_text
 from lib.index.query import classify_img, search_sim, search_txt
 
 app = Flask("Multimodal CLIP Application Demo")
@@ -78,3 +82,26 @@ def similar():
                  for i in result_indices]
 
     return jsonify({"filepaths": filepaths})
+
+
+@app.route("/repos/text/add", methods=["POST"])
+def add_text_repo():
+    if "BLOCKING" not in environ:
+        return jsonify({}), 403
+
+    data = request.json
+    name, vocab = data["name"], data["vocab"]
+
+    text_values = load_text(vocab)
+
+    build_txt_index_faiss(name,
+                          text_values,
+                          n_components=n_components,
+                          verbose=True)
+
+    filepath = "vocab/{}.json".format(name)
+    update_collection_text(name, filepath)
+    with open(filepath, "w") as outfile:
+        dump(vocab, outfile)
+
+    return jsonify({"filepaths": [filepath], "vocab_size": len(text_values)})

@@ -1,24 +1,9 @@
 from lib.hparams import collection_images, n_components
 from lib.index import build_img_index_faiss
+from lib.index.collection import update_collection_images
 
 from sys import argv
 from time import time
-
-
-def update_collection_images(dataset_name, dataset_path):
-
-    if (dataset_name, dataset_path) in collection_images:
-        return
-
-    collection_images.append((dataset_name, dataset_path))
-    lines = []
-    for (dataset_name, dataset_path) in collection_images:
-        lines.append("{} {}\n".format(dataset_name, dataset_path))
-
-    with open("collection_images.txt", "w") as f:
-        f.writelines(lines)
-    f.close()
-
 
 if len(argv) <= 2:
     print("Please specify dataset/repository name.")
