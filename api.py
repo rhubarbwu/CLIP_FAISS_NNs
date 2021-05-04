@@ -20,20 +20,21 @@ subset_preview_length = 6
 
 @app.route("/api/hello", methods=["POST"])
 def hello():
-    return jsonify({})
+    print("HELLO")
+    return jsonify({}), 200
 
 
-@app.route("/repos/images", methods=["POST"])
+@app.route("/api/repos/images", methods=["POST"])
 def get_img_repos():
     return jsonify({"repos": sorted(list(img_repos.keys()))})
 
 
-@app.route("/repos/text", methods=["POST"])
+@app.route("/api/repos/text", methods=["POST"])
 def get_txt_repos():
     return jsonify({"repos": sorted(list(txt_repos.keys()))})
 
 
-@app.route("/repos/images", methods=["POST"])
+@app.route("/api/repos/images", methods=["POST"])
 def get_imgs():
     data = request.json
     mode = data["mode"]["id"]
@@ -47,7 +48,7 @@ def get_imgs():
     return jsonify({"filepaths": filepaths})
 
 
-@app.route("/classify", methods=["POST"])
+@app.route("/api/classify", methods=["POST"])
 def classify():
     data = request.json
     repos = data["repos"]
@@ -59,7 +60,7 @@ def classify():
     return jsonify({"classified": classified})
 
 
-@app.route("/search", methods=["POST"])
+@app.route("/api/search", methods=["POST"])
 def search():
     data = request.json
     repos = data["repos"]
@@ -74,7 +75,7 @@ def search():
     return jsonify({"filepaths": filepaths})
 
 
-@app.route("/similar", methods=["POST"])
+@app.route("/api/similar", methods=["POST"])
 def similar():
     data = request.json
     repos = data["repos"]
@@ -89,7 +90,7 @@ def similar():
     return jsonify({"filepaths": filepaths})
 
 
-@app.route("/repos/text/add", methods=["POST"])
+@app.route("/api/repos/text/add", methods=["POST"])
 def add_text_repo():
     if "BLOCKING" not in environ:
         return jsonify({}), 403
