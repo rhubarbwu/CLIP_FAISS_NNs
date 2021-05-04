@@ -18,12 +18,17 @@ txt_repos = build_txt_repo_map()
 subset_preview_length = 6
 
 
-@app.route("/repos/images", methods=["GET"])
+@app.route("/api/hello", methods=["POST"])
+def hello():
+    return jsonify({})
+
+
+@app.route("/repos/images", methods=["POST"])
 def get_img_repos():
     return jsonify({"repos": sorted(list(img_repos.keys()))})
 
 
-@app.route("/repos/text", methods=["GET"])
+@app.route("/repos/text", methods=["POST"])
 def get_txt_repos():
     return jsonify({"repos": sorted(list(txt_repos.keys()))})
 
