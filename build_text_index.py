@@ -3,6 +3,7 @@ from lib.hparams import collection_text, n_components
 from lib.index import build_txt_index_faiss
 from lib.index.collection import update_collection_text
 
+from json import load
 from sys import argv
 from time import time
 
@@ -14,7 +15,9 @@ if len(argv) >= 4:
     n_components = int(argv[3])
 
 start_time = time()
-text_values = load_text(dataset_path)
+with open(dataset_path) as fp:
+    data = load(fp)
+text_values = load_text(data)
 
 build_txt_index_faiss(dataset_name,
                       text_values,

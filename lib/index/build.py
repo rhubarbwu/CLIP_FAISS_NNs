@@ -1,6 +1,7 @@
 from ..data import *
 from ..hparams import *
 from ..preprocessing import *
+from ..preprocessing.encode import encode_img, encode_txt
 from .utils import *
 
 import faiss, numpy as np, pickle, torchvision
@@ -18,14 +19,14 @@ def build_img_index_faiss(dataset_name,
               format(dataset_name, n_components))
 
     # Load the dataset.
-    dataset = load_dataset(dataset_path)
+    dataset = load_images(dataset_path)
 
     # Construct index.
     index = faiss.IndexFlatIP(n_components)
 
     # Add each image's encoding to the index.
     for i in range(len(dataset) if n_images is None else n_images):
-        img_features = encode_image(dataset, i).astype('float32')
+        img_features = encode_img(dataset, i).astype('float32')
         index.add(img_features)
         if verbose:
             print("Image {} encoded and added to index.".format(i))
