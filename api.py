@@ -18,9 +18,8 @@ txt_repos = build_txt_repo_map()
 subset_preview_length = 6
 
 
-@app.route("/api/hello", methods=["POST"])
-def hello():
-    print("HELLO")
+@app.route("/api/index", methods=["GET", "POST"])
+def index():
     return jsonify({}), 200
 
 
@@ -34,15 +33,15 @@ def get_txt_repos():
     return jsonify({"repos": sorted(list(txt_repos.keys()))})
 
 
-@app.route("/api/repos/images", methods=["POST"])
-def get_imgs():
+@app.route("/api/gallery", methods=["POST"])
+def get_gallery():
     data = request.json
     mode = data["mode"]["id"]
-    repos = data["repos"]
+    selected_repos_img = data["repos"]
 
-    subsets, subset_size = build_img_data_subset(img_repos, repos)
+    subsets, subset_size = build_img_data_subset(img_repos, selected_repos_img)
     subset_indices = sample(range(subset_size), subset_preview_length)
-    filepaths = [(int(i), index_into_subsets(subsets, i))
+    filepaths = [(int(i), index_into_img_subsets(subsets, i))
                  for i in subset_indices]
 
     return jsonify({"filepaths": filepaths})
@@ -51,25 +50,30 @@ def get_imgs():
 @app.route("/api/classify", methods=["POST"])
 def classify():
     data = request.json
-    repos = data["repos"]
-    txt_repos = data["txt_repos"]
+    selected_repos_img = data["repos"]
+    selected_repos_txt = data["txt_repos"]
     index = data["index"]
     nnn = data["n_neighbours"]
-    classified = classify_img(repos, txt_repos, index, nnn)
 
-    return jsonify({"classified": classified})
+    subsets, _ = build_txt_data_subset(txt_repos, selected_repos_txt)
+    result_indices = classify_img(selected_repos_img, selected_repos_txt,
+                                  index, nnn)
+    text = [(int(i), index_into_txt_subsets(subsets, i))
+            for i in result_indices]
+
+    return jsonify({"classified": text})
 
 
 @app.route("/api/search", methods=["POST"])
 def search():
     data = request.json
-    repos = data["repos"]
+    selected_repos_img = data["repos"]
     query = "a picture of {}".format(data["query"])
     nnn = data["n_neighbours"]
 
-    subsets = build_img_data_subset(img_repos, repos)
-    result_indices = search_txt(repos, query, nnn)
-    filepaths = [(int(i), index_into_subsets(subsets, i))
+    subsets, _ = build_img_data_subset(img_repos, selected_repos_img)
+    result_indices = search_txt(selected_repos_img, query, nnn)
+    filepaths = [(int(i), index_into_img_subsets(subsets, i))
                  for i in result_indices]
 
     return jsonify({"filepaths": filepaths})
@@ -78,13 +82,13 @@ def search():
 @app.route("/api/similar", methods=["POST"])
 def similar():
     data = request.json
-    repos = data["repos"]
+    selected_repos_img = data["repos"]
     index = data["index"]
     nnn = data["n_neighbours"]
 
-    subsets = build_img_data_subset(img_repos, repos)
-    result_indices = search_sim(repos, index, nnn)
-    filepaths = [(int(i), index_into_subsets(subsets, i))
+    subsets, _ = build_img_data_subset(img_repos, selected_repos_img)
+    result_indices = search_sim(selected_repos_img, index, nnn)
+    filepaths = [(int(i), index_into_img_subsets(subsets, i))
                  for i in result_indices]
 
     return jsonify({"filepaths": filepaths})

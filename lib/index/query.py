@@ -1,6 +1,7 @@
 from faiss import IndexIDMap, IndexFlatIP, read_index
 from numpy import array
 
+from lib.data.dataset import build_txt_data_subset
 from lib.hparams import n_components
 from lib.preprocessing import encode_img, encode_txt
 from lib.preprocessing.model import *

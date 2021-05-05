@@ -64,11 +64,31 @@ def build_img_data_subset(datasets, repos):
     return subsets, subset_size
 
 
-def index_into_subsets(subsets, index):
+def build_txt_data_subset(datasets, repos):
+    subsets = []
+    subset_size = 0
+    for r in repos:
+        subsets.append(datasets[r])
+        subset_size += len(datasets[r])
+
+    return subsets, subset_size
+
+
+def index_into_img_subsets(subsets, index):
     curr_idx = 0
     for ss in subsets:
         if curr_idx + len(ss) >= index:
             return ss.imgs[index - curr_idx][0]
+        curr_idx += len(ss)
+
+    return None
+
+
+def index_into_txt_subsets(subsets, index):
+    curr_idx = 0
+    for ss in subsets:
+        if curr_idx + len(ss) >= index:
+            return ss[index - curr_idx]
         curr_idx += len(ss)
 
     return None
