@@ -23,12 +23,12 @@ def index():
     return jsonify({}), 200
 
 
-@app.route("/api/repos/images", methods=["POST"])
+@app.route("/api/repos-images", methods=["POST"])
 def get_img_repos():
     return jsonify({"repos": sorted(list(img_repos.keys()))})
 
 
-@app.route("/api/repos/text", methods=["POST"])
+@app.route("/api/repos-text", methods=["POST"])
 def get_txt_repos():
     return jsonify({"repos": sorted(list(txt_repos.keys()))})
 
@@ -94,7 +94,7 @@ def similar():
     return jsonify({"filepaths": filepaths})
 
 
-@app.route("/api/repos/text/add", methods=["POST"])
+@app.route("/api/add-text-repo", methods=["POST"])
 def add_text_repo():
     if "BLOCKING" not in environ:
         return jsonify({}), 403
