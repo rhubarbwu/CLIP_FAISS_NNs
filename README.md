@@ -83,6 +83,29 @@ indexes_images/
       | text_aidemos_512.index
    ```
 
+##### Via the API
+
+There is a route in the Flask API `/api/add-text-repo` that allows the adding of a new named text repository to the indices. This requires the `BLOCKING` environment variable to be set when starting the server. An example request is shown in Python.
+
+```python
+import requests
+
+url = "http://aidemos.cs.toronto.edu:5004/api/add-text-repo"
+# url = "http://0.0.0.0:5020/api/add-text-repo"
+payload = {
+    "modelName": "clip",
+    "name": "cities",
+    "path": "vocab/cities.json",
+    "vocab": {
+        "london": {},
+        "st. petersberg": {},
+        "paris": {},
+    }
+}
+
+r = requests.post(url, json=payload)
+```
+
 ## Usage
 
 Using a CUDA-capable GPU is preferred, so make sure to specify the GPU device `X` if applicable.

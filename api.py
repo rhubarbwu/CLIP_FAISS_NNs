@@ -114,4 +114,7 @@ def add_text_repo():
     with open(filepath, "w") as outfile:
         dump(vocab, outfile)
 
+    global txt_repos
+    txt_repos = build_txt_repo_map()
+
     return jsonify({"filepaths": [filepath], "vocab_size": len(text_values)})
