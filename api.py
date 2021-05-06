@@ -30,6 +30,7 @@ def get_img_repos():
 
 @app.route("/api/repos-text", methods=["POST"])
 def get_txt_repos():
+    txt_repos = build_txt_repo_map()
     return jsonify({"repos": sorted(list(txt_repos.keys()))})
 
 
