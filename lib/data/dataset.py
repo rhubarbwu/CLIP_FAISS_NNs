@@ -1,4 +1,5 @@
-from lib.hparams import collection_images, collection_text, n_components
+from lib.data.collection import *
+from lib.hparams import n_components
 
 from faiss import read_index
 from json import load
@@ -24,9 +25,10 @@ def load_text(data):
 
 
 def build_img_repo_map():
-    repos = dict()
+    collection = refresh_collection_images()
 
-    for repo in sorted(collection_images):
+    repos = dict()
+    for repo in sorted(collection):
         repo_name, repo_path = repo[0], repo[1]
         index_path = "indexes_images/{}_{}.index".format(
             repo_name, n_components)
@@ -39,9 +41,10 @@ def build_img_repo_map():
 
 
 def build_txt_repo_map():
-    repos = dict()
+    collection = refresh_collection_text()
 
-    for repo in sorted(collection_text):
+    repos = dict()
+    for repo in sorted(collection):
         repo_name, repo_path = repo[0], repo[1]
         index_path = "indexes_text/{}_{}.index".format(repo_name, n_components)
 

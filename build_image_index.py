@@ -1,6 +1,6 @@
-from lib.hparams import collection_images, n_components
+from lib.hparams import n_components
 from lib.index import build_img_index_faiss
-from lib.index.collection import update_collection_images
+from lib.data.collection import collection_images, update_collection_images
 
 from sys import argv
 from time import time

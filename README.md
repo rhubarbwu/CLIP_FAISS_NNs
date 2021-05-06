@@ -43,9 +43,9 @@ Before running any scripts, review `lib/hparams.py` and change any hyperparamete
 - If you want to use the default dataset (`tiny-imagenet-200`), run `scripts/tiny-imagenet-200.sh`.
 - Make sure that any datasets (AKA repositories) you want to use are accessible with a relative/absolute Unix path from the base of the dataset/repository).
 
-### Indexing
+### Indexing (Manual)
 
-The indexes will be stored in `indexes` and have a filename indicating dataset and number of features (which may vary given the CLIP model and FAISS compression method used).
+The indexes will be stored in `indexes_*` and have a filename indicating dataset and number of features (which may vary given the CLIP model and FAISS compression method used).
 
 #### Generating Image Indexes
 
@@ -83,19 +83,50 @@ indexes_images/
       | text_aidemos_512.index
    ```
 
-##### Via the API
+## Retrieval API (Public)
 
-There is a route in the Flask API `/api/add-text-repo` that allows the adding of a new named text repository to the indices. This requires the `BLOCKING` environment variable to be set when starting the server. An example request is shown in Python.
+Run `sh scripts/retrieval.sh` to start the publical Retrieval API. Run this on a separete port and GPU, for example. The API hasn't yet been fully documented so please see `retrieval.py` for now.
+
+```sh
+CUDA_VISIBLE_DEVICES=0 FLASK_RUN_PORT=5020 sh scripts/public.sh
+```
+
+## Indexing API (Private)
+
+Run `BLOCKING= sh scripts/indexing.sh` to start the private Indexing API. Make sure this API is not publicly exposed as it can be blocked by indexing function calls. Run this on a separete port and GPU, for example.
+
+```sh
+BLOCKING= CUDA_VISIBLE_DEVICES=1 FLASK_RUN_PORT=5021 sh scripts/index.sh
+```
+
+### Adding Image Repos: `/api/add-image-repo`
+
+Example in Python.
 
 ```python
 import requests
 
-url = "http://aidemos.cs.toronto.edu:5004/api/add-text-repo"
-# url = "http://0.0.0.0:5020/api/add-text-repo"
+url = "http://0.0.0.0:5021/api/add-text-repo"
+payload = {
+    "modelName": "clip",
+    "name": "tiny-imagenet-200-train",
+    "path": "data/tiny-imagenet-200/train",
+}
+
+r = requests.post(url, json=payload)
+```
+
+### Adding Text Repos: `/api/add-text-repo`
+
+Example in Python.
+
+```python
+import requests
+
+url = "http://0.0.0.0:5021/api/add-text-repo"
 payload = {
     "modelName": "clip",
     "name": "cities",
-    "path": "vocab/cities.json",
     "vocab": {
         "london": {},
         "st. petersberg": {},
@@ -105,26 +136,3 @@ payload = {
 
 r = requests.post(url, json=payload)
 ```
-
-## Usage
-
-Using a CUDA-capable GPU is preferred, so make sure to specify the GPU device `X` if applicable.
-
-```sh
-CUDA_VISIBLE_DEVICES=X
-```
-
-If you installed [CLIP](https://github.com/openai/CLIP) locally, set `LOCAL_CLIP` when running a script or API that requires it.
-
-```sh
-LOCAL_CLIP= <rest of the script>
-```
-
-### Deployment
-
-- Run `sh scripts/api.sh` from the base of the repository to start the server (default on port `5020`).
-- To interface with the API, deploy a frontend like [rusbridger/Multimodal-CLIP-Applications-Frontend](https://github.com/rusbridger/Multimodal-CLIP-Applications-Frontend).
-
-## Cleaning Up
-
-To clean up the workspace, run `sh scripts/clean.sh` with optional arguments (detailed in the script).

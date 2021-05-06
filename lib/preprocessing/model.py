@@ -9,4 +9,4 @@ else:
 
 # Load the desired model.
 device = "cuda" if torch.cuda.is_available() else "cpu"
-model, preprocess = clip.load(model_selection, device)
+model, preprocess = clip.load(model_selection, device, jit=True)

@@ -35,6 +35,8 @@ def build_img_index_faiss(dataset_name,
     index_filename = get_image_index_filename(dataset_name, n_components)
     faiss.write_index(index, index_filename)
 
+    return index.ntotal
+
 
 def build_txt_index_faiss(dataset_name,
                           text_values,
@@ -58,3 +60,5 @@ def build_txt_index_faiss(dataset_name,
     # Get filename and write to disk.
     index_filename = get_txt_index_filename(dataset_name, n_components)
     faiss.write_index(index, index_filename)
+
+    return index.ntotal

@@ -1,18 +1,15 @@
 from flask import Flask, jsonify, request, send_file
 from flask_cors import CORS
-from json import dump
-from os import environ
 from random import sample
 
 from lib.data import *
-from lib.index.build import build_txt_index_faiss
-from lib.index.collection import update_collection_text
 from lib.index.query import classify_img, search_sim, search_txt
 
 app = Flask("Multimodal CLIP Application Demo")
 CORS(app)
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
 
+global img_repos, txt_repos
 img_repos = build_img_repo_map()
 txt_repos = build_txt_repo_map()
 subset_preview_length = 6
@@ -20,6 +17,9 @@ subset_preview_length = 6
 
 @app.route("/api/index", methods=["GET", "POST"])
 def index():
+    global img_repos, txt_repos
+    img_repos = build_img_repo_map()
+    txt_repos = build_txt_repo_map()
     return jsonify({}), 200
 
 
@@ -30,7 +30,6 @@ def get_img_repos():
 
 @app.route("/api/repos-text", methods=["POST"])
 def get_txt_repos():
-    txt_repos = build_txt_repo_map()
     return jsonify({"repos": sorted(list(txt_repos.keys()))})
 
 
@@ -93,29 +92,3 @@ def similar():
                  for i in result_indices]
 
     return jsonify({"filepaths": filepaths})
-
-
-@app.route("/api/add-text-repo", methods=["POST"])
-def add_text_repo():
-    if "BLOCKING" not in environ:
-        return jsonify({}), 403
-
-    data = request.json
-    name, vocab = data["name"], data["vocab"]
-
-    text_values = load_text(vocab)
-
-    build_txt_index_faiss(name,
-                          text_values,
-                          n_components=n_components,
-                          verbose=True)
-
-    filepath = "vocab/{}.json".format(name)
-    update_collection_text(name, filepath)
-    with open(filepath, "w") as outfile:
-        dump(vocab, outfile)
-
-    global txt_repos
-    txt_repos = build_txt_repo_map()
-
-    return jsonify({"filepaths": [filepath], "vocab_size": len(text_values)})

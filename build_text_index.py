@@ -1,7 +1,7 @@
 from lib.data.dataset import load_text
-from lib.hparams import collection_text, n_components
+from lib.hparams import n_components
 from lib.index import build_txt_index_faiss
-from lib.index.collection import update_collection_text
+from lib.data.collection import update_collection_text
 
 from json import load
 from sys import argv
@@ -23,5 +23,7 @@ build_txt_index_faiss(dataset_name,
                       text_values,
                       n_components=n_components,
                       verbose=True)
-print("Image indexing completed in {}.".format(time() - start_time))
+print("Text indexing for {} values completed in {}.".format(
+    len(text_values),
+    time() - start_time))
 update_collection_text(dataset_name, dataset_path)
