@@ -25,11 +25,15 @@ def index():
 
 @app.route("/api/repos-images", methods=["POST"])
 def get_img_repos():
+    global img_repos
+    img_repos = build_img_repo_map()
     return jsonify({"repos": sorted(list(img_repos.keys()))})
 
 
 @app.route("/api/repos-text", methods=["POST"])
 def get_txt_repos():
+    global txt_repos
+    txt_repos = build_txt_repo_map()
     return jsonify({"repos": sorted(list(txt_repos.keys()))})
 
 

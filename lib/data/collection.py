@@ -5,6 +5,8 @@ collection_text = []
 
 def update_collection_images(dataset_name, dataset_path):
 
+    refresh_collection_images()
+
     if (dataset_name, dataset_path) in collection_images:
         return
 
@@ -19,6 +21,8 @@ def update_collection_images(dataset_name, dataset_path):
 
 
 def update_collection_text(dataset_name, dataset_path):
+
+    refresh_collection_text()
 
     if (dataset_name, dataset_path) in collection_text:
         return
