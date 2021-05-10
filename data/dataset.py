@@ -1,5 +1,5 @@
-from lib.data.collection import *
-from lib.hparams import n_components
+from .collection import *
+from ..hparams import n_components
 
 from faiss import read_index
 from json import load
@@ -24,14 +24,14 @@ def load_text(data):
     return sorted(keys)
 
 
-def build_img_repo_map():
-    collection = refresh_collection_images()
+def build_img_repo_map(indexes_images, collection_file):
+    collection = refresh_collection_images(collection_file)
 
     repos = dict()
     for repo in sorted(collection):
         repo_name, repo_path = repo[0], repo[1]
-        index_path = "indexes_images/{}_{}.index".format(
-            repo_name, n_components)
+        index_path = "{}/{}_{}.index".format(indexes_images, repo_name,
+                                             n_components)
 
         if exists(index_path) and exists(repo_path):
             dataset = load_images(repo_path)
@@ -40,13 +40,14 @@ def build_img_repo_map():
     return repos
 
 
-def build_txt_repo_map():
-    collection = refresh_collection_text()
+def build_txt_repo_map(indexes_text, collection_file):
+    collection = refresh_collection_text(collection_file)
 
     repos = dict()
     for repo in sorted(collection):
         repo_name, repo_path = repo[0], repo[1]
-        index_path = "indexes_text/{}_{}.index".format(repo_name, n_components)
+        index_path = "{}/{}_{}.index".format(indexes_text, repo_name,
+                                             n_components)
 
         if exists(index_path) and exists(repo_path):
             with open(repo_path) as fp:

@@ -9,9 +9,9 @@ import faiss, numpy as np, pickle, torchvision
 
 def build_img_index_faiss(dataset_name,
                           dataset_path,
+                          directory,
                           n_images=None,
                           n_components=n_components,
-                          model_selection=model_selection,
                           verbose=False):
 
     if verbose:
@@ -32,7 +32,8 @@ def build_img_index_faiss(dataset_name,
             print("Image {} encoded and added to index.".format(i))
 
     # Write to index.
-    index_filename = get_image_index_filename(dataset_name, n_components)
+    index_filename = get_image_index_filename(dataset_name, directory,
+                                              n_components)
     faiss.write_index(index, index_filename)
 
     return index.ntotal
@@ -40,9 +41,8 @@ def build_img_index_faiss(dataset_name,
 
 def build_txt_index_faiss(dataset_name,
                           text_values,
+                          directory,
                           n_components=n_components,
-                          classes=None,
-                          model_selection=model_selection,
                           verbose=False):
 
     if verbose:
@@ -58,7 +58,8 @@ def build_txt_index_faiss(dataset_name,
         index.add(text_features)
 
     # Get filename and write to disk.
-    index_filename = get_txt_index_filename(dataset_name, n_components)
+    index_filename = get_txt_index_filename(dataset_name, directory,
+                                            n_components)
     faiss.write_index(index, index_filename)
 
     return index.ntotal
